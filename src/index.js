@@ -1,7 +1,8 @@
 import PoissonDiskSampler from "./PoissonDiskSampler.js";
+import DelaunayTriangulator from "./DelaunayTriangulator";
 
-const minRadius = 10;
-const maxRadius = 100;
+const minRadius = 20;
+const maxRadius = 120;
 const width = 1024;
 const height = 768;
 
@@ -23,4 +24,9 @@ for (let node of nodes) {
     c.beginPath();
     c.arc(node.x, node.y, node.radius / 2, 0, 2 * Math.PI);
     c.stroke();
+}
+
+const triangulator = new DelaunayTriangulator();
+for (let drawNode in triangulator.bowyerWatson(nodes)) {
+    console.log(drawNode);
 }

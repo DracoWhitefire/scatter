@@ -4,6 +4,14 @@ class PoissonDiskSampler {
         this.index = {};
     }
 
+    /**
+     * @param {int} width
+     * @param {int} height
+     * @param {int} minRadius
+     * @param {int} maxRadius
+     * @param {int} iterations
+     * @returns {{x:int, y:int}[]}
+     */
     findPoints(width, height, minRadius, maxRadius, iterations) {
         for (let i = 0; i < iterations; i++) {
             this.iterate(width, height, minRadius, maxRadius,  Math.round(Math.sqrt(Math.pow(maxRadius, 2) / 2)));
@@ -12,6 +20,13 @@ class PoissonDiskSampler {
         return this.nodes;
     }
 
+    /**
+     * @param {int} width
+     * @param {int} height
+     * @param {int} minRadius
+     * @param {int} maxRadius
+     * @param {number} cellSize
+     */
     iterate(width, height, minRadius, maxRadius, cellSize) {
         for (let boxY = 0; boxY < height; boxY += cellSize) {
             for (let boxX = 0; boxX < width; boxX += cellSize) {
