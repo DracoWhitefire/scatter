@@ -2,9 +2,14 @@
   "compilerOptions": {
     "module": "es6",
     "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "noImplicitUseStrict": true,
+    "noUncheckedIndexedAccess": true,
     "target": "es6",
     "sourceMap": true,
-    "allowJs": true
+    "allowJs": true,
+    "strict": true
   },
   "exclude": [
     "node_modules"

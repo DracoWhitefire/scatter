@@ -1,18 +1,22 @@
 const circumCircle = require('circumcircle');
 
+type vertex = { x: number, y: number };
+type edge = [vertex, vertex];
+type triangle = [vertex, vertex, vertex];
+
 class DelaunayTriangulator {
     /**
      * @see https://en.wikipedia.org/wiki/Bowyer%E2%80%93Watson_algorithm
-     * @param {{x:int, y:int}[]} nodes
-     * @returns {*[]}
+     * @param {vertex[]} nodes
+     * @returns {triangle[]}
      */
-    bowyerWatson(nodes: { x: number, y: number }[]) {
+    bowyerWatson(nodes: vertex[]): triangle[] {
         const triangulator = this;
-        let triangulation = [];
+        let triangulation: triangle[] = [];
         let superTriangle = this.getSuperTriangle(nodes);
         triangulation.push(superTriangle);
         for (let node of nodes) {
-            let badTriangles: { x: number; y: number; }[][] = [];
+            let badTriangles: triangle[] = [];
             for (let triangle of triangulation) {
                 let c = circumCircle([
                     [triangle[0].x, triangle[0].y],
@@ -24,10 +28,10 @@ class DelaunayTriangulator {
                     badTriangles.push(triangle);
                 }
             }
-            let polygon: { x: number; y: number; }[][] = [];
+            let polygon: edge[] = [];
             for (let badTriangle of badTriangles) {
                 let edges = this.getEdges(badTriangle);
-                let sharedEdges: { x: number; y: number; }[][] = [];
+                let sharedEdges: edge[] = [];
                 for (let compareTriangle of badTriangles) {
                     if (badTriangle === compareTriangle) {
                         continue;
@@ -41,14 +45,14 @@ class DelaunayTriangulator {
                         }
                     }
                 }
-                edges.filter((edge) => {
+                edges.filter((edge: edge) => {
                     for (let sharedEdge of sharedEdges) {
                         if (this.compareEdges(edge, sharedEdge)) {
                             return false;
                         }
                     }
                     return true;
-                }).forEach((edge) => {
+                }).forEach((edge: edge) => {
                     polygon.push(edge)
                 });
             }
@@ -64,11 +68,11 @@ class DelaunayTriangulator {
             }
         }
 
-        let trianglesToRemove: { x: number; y: number; }[][] = [];
+        let trianglesToRemove: triangle[] = [];
         for (let triangle of triangulation) {
-            if (superTriangle.find((node) => node === triangle[0])
-                || superTriangle.find((node) => node === triangle[1])
-                || superTriangle.find((node) => node === triangle[2])) {
+            if (superTriangle.find((node: vertex) => node === triangle[0])
+                || superTriangle.find((node: vertex) => node === triangle[1])
+                || superTriangle.find((node: vertex) => node === triangle[2])) {
                 trianglesToRemove.push(triangle);
             }
         }
@@ -81,44 +85,44 @@ class DelaunayTriangulator {
     }
 
     /**
-     * @param {[{x:number, y:number}]} triangle
-     * @return {[[{x:number, y:number}]]}
+     * @param {triangle} triangle
+     * @return {[edge, edge, edge]}
      */
-    getEdges(triangle: { x: number, y: number }[]) {
+    getEdges(triangle: triangle): [edge, edge, edge] {
         return Object.seal([
-            Object.seal([triangle[0], triangle[1]]),
-            Object.seal([triangle[1], triangle[2]]),
-            Object.seal([triangle[2], triangle[0]]),
+            <edge> Object.seal([triangle[0], triangle[1]]),
+            <edge> Object.seal([triangle[1], triangle[2]]),
+            <edge> Object.seal([triangle[2], triangle[0]]),
         ]);
     }
 
     /**
-     * @param {{x:number, y:number}} vertexA
-     * @param {{x:number, y:number}} vertexB
+     * @param {vertex} vertexA
+     * @param {vertex} vertexB
      * @param {int} precision
      * @return boolean
      */
-    compareVertices(vertexA: { x: number, y: number }, vertexB: { x: number, y: number }, precision: number = 6) {
+    compareVertices(vertexA: vertex, vertexB: vertex, precision: number = 6): boolean {
         return vertexA.x.toPrecision(precision) === vertexB.x.toPrecision(precision)
             && vertexA.y.toPrecision(precision) === vertexB.y.toPrecision(precision);
     }
 
     /**
-     * @param {[{x:number, y:number},{x:number, y:number}]} edgeA
-     * @param {[{x:number, y:number},{x:number, y:number}]} edgeB
+     * @param {edge} edgeA
+     * @param {edge} edgeB
      * @return boolean
      */
-    compareEdges(edgeA: { x: number, y: number }[], edgeB: { x: number, y: number }[]) {
+    compareEdges(edgeA: edge, edgeB: edge): boolean {
         return this.compareVertices(edgeA[0], edgeB[0]) && this.compareVertices(edgeA[1], edgeB[1])
             || this.compareVertices(edgeA[0], edgeB[1]) && this.compareVertices(edgeA[1], edgeB[0]);
     }
 
     /**
-     * @param {[{x:number, y:number},{x:number, y:number},{x:number, y:number}]} triangleA
-     * @param {[{x:number, y:number},{x:number, y:number},{x:number, y:number}]} triangleB
+     * @param {triangle} triangleA
+     * @param {triangle} triangleB
      * @return boolean
      */
-    compareTriangles(triangleA: { x: number, y: number }[], triangleB: { x: number, y: number }[]) {
+    compareTriangles(triangleA: triangle, triangleB: triangle): boolean {
         return this.compareVertices(triangleA[0], triangleB[0])
             && this.compareVertices(triangleA[1], triangleB[1])
             && this.compareVertices(triangleA[2], triangleB[2])
@@ -134,7 +138,11 @@ class DelaunayTriangulator {
             ;
     }
 
-    getSuperTriangle(nodes: { x: number, y: number }[]) {
+    /**
+     * @param {vertex[]} nodes
+     * @return {triangle} triangle
+     */
+    getSuperTriangle(nodes: vertex[]): triangle {
         let minX = 0;
         let maxX = 0;
         let minY = 0;
@@ -155,7 +163,7 @@ class DelaunayTriangulator {
         }
         const width = maxX - minX;
         const height = maxY - minY;
-        return [
+        return <triangle> [
             {x: minX - width, y: minY - 10},
             {x: maxX + width, y: minY - 10},
             {x: minX + width / 2, y: maxY + height},

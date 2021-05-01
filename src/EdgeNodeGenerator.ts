@@ -1,12 +1,13 @@
+type node = {x: number, y: number, radius: number};
 class EdgeNodeGenerator {
     /**
      * @param {int} width
      * @param {int} height
      * @param {int} minDistance
      * @param {int} maxDistance
-     * @returns {{x:int, y:int, radius:number}[]}
+     * @returns {node[]}
      */
-    static generate(width: number, height: number, minDistance: number, maxDistance: number) {
+    static generate(width: number, height: number, minDistance: number, maxDistance: number): node[] {
         const nodes = [];
         for (let x = Math.random() * maxDistance;
              x <= width;

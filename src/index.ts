@@ -14,7 +14,7 @@ const nodes = sampler.findPoints(width, height, minRadius, maxRadius, iterations
 
 
 const canvas = <HTMLCanvasElement> document.querySelector('canvas#main');
-const c = canvas.getContext('2d');
+const c = <CanvasRenderingContext2D> canvas.getContext('2d');
 
 
 canvas.width = width;
@@ -32,13 +32,13 @@ for (let node of nodes) {
 
 c.strokeStyle = 'lightblue';
 const triangulator = new DelaunayTriangulator();
-for (let drawNode of triangulator.bowyerWatson(nodes)) {
+for (let drawTriangle of triangulator.bowyerWatson(nodes)) {
     c.fillStyle = "rgb(" + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ')';
     c.beginPath();
-    c.moveTo(drawNode[0].x, drawNode[0].y);
-    c.lineTo(drawNode[1].x, drawNode[1].y);
-    c.lineTo(drawNode[2].x, drawNode[2].y);
-    c.lineTo(drawNode[0].x, drawNode[0].y);
+    c.moveTo(drawTriangle[0].x, drawTriangle[0].y);
+    c.lineTo(drawTriangle[1].x, drawTriangle[1].y);
+    c.lineTo(drawTriangle[2].x, drawTriangle[2].y);
+    c.lineTo(drawTriangle[0].x, drawTriangle[0].y);
     // c.stroke();
     c.fill();
 }
