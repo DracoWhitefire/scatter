@@ -1,14 +1,17 @@
 import PoissonDiskSampler from "./PoissonDiskSampler";
 import DelaunayTriangulator from "./DelaunayTriangulator";
+import EdgeNodeGenerator from "./EdgeNodeGenerator";
 
 const minRadius = 30;
-const maxRadius = 400;
-const width = 800;
-const height = 600;
-const iterations = 5;
+const maxRadius = 600;
+const width = 1024;
+const height = 768;
+const iterations = 150;
 
 const sampler = new PoissonDiskSampler();
-const nodes = sampler.findPoints(width, height, minRadius, maxRadius, iterations);
+const nodes = sampler.findPoints(width, height, minRadius, maxRadius, iterations)
+    .concat(EdgeNodeGenerator.generate(width, height, minRadius, maxRadius));
+
 
 const canvas = document.querySelector('canvas#main');
 const c = canvas.getContext('2d');
@@ -30,11 +33,12 @@ for (let node of nodes) {
 c.strokeStyle = 'lightblue';
 const triangulator = new DelaunayTriangulator();
 for (let drawNode of triangulator.bowyerWatson(nodes)) {
-    // console.log(drawNode);
+    c.fillStyle = "rgb(" + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ')';
     c.beginPath();
     c.moveTo(drawNode[0].x, drawNode[0].y);
     c.lineTo(drawNode[1].x, drawNode[1].y);
     c.lineTo(drawNode[2].x, drawNode[2].y);
     c.lineTo(drawNode[0].x, drawNode[0].y);
-    c.stroke();
+    // c.stroke();
+    c.fill();
 }

@@ -10,7 +10,7 @@ class PoissonDiskSampler {
      * @param {int} minRadius
      * @param {int} maxRadius
      * @param {int} iterations
-     * @returns {{x:int, y:int}[]}
+     * @returns {{x:int, y:int, radius:number}[]}
      */
     findPoints(width, height, minRadius, maxRadius, iterations) {
         for (let i = 0; i < iterations; i++) {

@@ -56,11 +56,11 @@ class DelaunayTriangulator {
                 return !badTriangles.find((badTri) => triangulator.compareTriangles(triangle, badTri));
             });
             for (let edge of polygon) {
-                triangulation.push([
+                triangulation.push(Object.seal([
                     edge[0],
                     edge[1],
                     {x: node.x, y: node.y}
-                ])
+                ]))
             }
         }
 
@@ -85,11 +85,11 @@ class DelaunayTriangulator {
      * @return {[[{x:number, y:number}]]}
      */
     getEdges(triangle) {
-        return [
-            [triangle[0], triangle[1]],
-            [triangle[1], triangle[2]],
-            [triangle[2], triangle[0]],
-        ];
+        return Object.seal([
+            Object.seal([triangle[0], triangle[1]]),
+            Object.seal([triangle[1], triangle[2]]),
+            Object.seal([triangle[2], triangle[0]]),
+        ]);
     }
 
     /**
