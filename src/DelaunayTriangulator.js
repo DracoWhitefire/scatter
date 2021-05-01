@@ -7,6 +7,7 @@ class DelaunayTriangulator {
      * @returns {*[]}
      */
     bowyerWatson(nodes) {
+        const triangulator = this;
         let triangulation = [];
         let superTriangle = this.getSuperTriangle(nodes);
         triangulation.push(superTriangle);
@@ -25,34 +26,24 @@ class DelaunayTriangulator {
             }
             let polygon = [];
             for (let badTriangle of badTriangles) {
-                let edges = [
-                    [badTriangle[0], badTriangle[1]],
-                    [badTriangle[1], badTriangle[2]],
-                    [badTriangle[2], badTriangle[0]],
-                ];
+                let edges = this.getEdges(badTriangle);
                 let sharedEdges = [];
                 for (let compareTriangle of badTriangles) {
                     if (badTriangle === compareTriangle) {
                         continue;
                     }
-                    let compareEdges = [
-                        [compareTriangle[0], compareTriangle[1]],
-                        [compareTriangle[1], compareTriangle[2]],
-                        [compareTriangle[2], compareTriangle[0]],
-                    ];
+                    let compareEdges = this.getEdges(compareTriangle);
                     for (let edge of edges) {
                         for (let compareEdge of compareEdges) {
-                            if (((edge[0] === compareEdge[0]) && (edge[1] === compareEdge[1]))
-                                || ((edge[1] === compareEdge[0]) && (edge[0] === compareEdge[1]))) {
+                            if (this.compareEdges(edge, compareEdge)) {
                                 sharedEdges.push(edge);
                             }
                         }
                     }
                 }
                 edges.filter((edge) => {
-                    for (let sharedEdge in sharedEdges) {
-                        if (((edge[0] === sharedEdge[0]) && (edge[1] === sharedEdge[1]))
-                            || ((edge[1] === sharedEdge[0]) && (edge[0] === sharedEdge[1]))) {
+                    for (let sharedEdge of sharedEdges) {
+                        if (this.compareEdges(edge, sharedEdge)) {
                             return false;
                         }
                     }
@@ -62,12 +53,7 @@ class DelaunayTriangulator {
                 });
             }
             triangulation = triangulation.filter((triangle) => {
-                return !badTriangles.find((badTri) => {
-                    return (((badTri[0] === triangle[0]) && (badTri[1] === triangle[1]) && (badTri[2] === triangle[2]))
-                        || ((badTri[0] === triangle[0]) && (badTri[1] === triangle[2]) && (badTri[2] === triangle[1]))
-                        || ((badTri[0] === triangle[1]) && (badTri[1] === triangle[0]) && (badTri[2] === triangle[2]))
-                        || ((badTri[0] === triangle[2]) && (badTri[1] === triangle[1]) && (badTri[2] === triangle[0])));
-                });
+                return !badTriangles.find((badTri) => triangulator.compareTriangles(triangle, badTri));
             });
             for (let edge of polygon) {
                 triangulation.push([
@@ -86,16 +72,66 @@ class DelaunayTriangulator {
                 trianglesToRemove.push(triangle);
             }
         }
+
         triangulation = triangulation.filter(function (triangle) {
-            return !trianglesToRemove.find((triToRemove) => {
-                return (((triToRemove[0] === triangle[0]) && (triToRemove[1] === triangle[1]) && (triToRemove[2] === triangle[2]))
-                    || ((triToRemove[0] === triangle[0]) && (triToRemove[1] === triangle[2]) && (triToRemove[2] === triangle[1]))
-                    || ((triToRemove[0] === triangle[1]) && (triToRemove[1] === triangle[0]) && (triToRemove[2] === triangle[2]))
-                    || ((triToRemove[0] === triangle[2]) && (triToRemove[1] === triangle[1]) && (triToRemove[2] === triangle[0])));
-            });
+            return !trianglesToRemove.find((triToRemove) => triangulator.compareTriangles(triToRemove, triangle));
         });
 
         return triangulation;
+    }
+
+    /**
+     * @param {[{x:number, y:number}]} triangle
+     * @return {[[{x:number, y:number}]]}
+     */
+    getEdges(triangle) {
+        return [
+            [triangle[0], triangle[1]],
+            [triangle[1], triangle[2]],
+            [triangle[2], triangle[0]],
+        ];
+    }
+
+    /**
+     * @param {{x:number, y:number}} vertexA
+     * @param {{x:number, y:number}} vertexB
+     * @param {int} precision
+     * @return boolean
+     */
+    compareVertices(vertexA, vertexB, precision = 6) {
+        return vertexA.x.toPrecision(precision) === vertexB.x.toPrecision(precision)
+        && vertexA.y.toPrecision(precision) === vertexB.y.toPrecision(precision);
+    }
+
+    /**
+     * @param {[{x:number, y:number},{x:number, y:number}]} edgeA
+     * @param {[{x:number, y:number},{x:number, y:number}]} edgeB
+     * @return boolean
+     */
+    compareEdges(edgeA, edgeB) {
+        return this.compareVertices(edgeA[0], edgeB[0]) && this.compareVertices(edgeA[1], edgeB[1])
+        || this.compareVertices(edgeA[0], edgeB[1]) && this.compareVertices(edgeA[1], edgeB[0]);
+    }
+
+    /**
+     * @param {[{x:number, y:number},{x:number, y:number},{x:number, y:number}]} triangleA
+     * @param {[{x:number, y:number},{x:number, y:number},{x:number, y:number}]} triangleB
+     * @return boolean
+     */
+    compareTriangles(triangleA, triangleB) {
+        return this.compareVertices(triangleA[0], triangleB[0])
+            && this.compareVertices(triangleA[1], triangleB[1])
+            && this.compareVertices(triangleA[2], triangleB[2])
+            || this.compareVertices(triangleA[0], triangleB[0])
+            && this.compareVertices(triangleA[2], triangleB[1])
+            && this.compareVertices(triangleA[1], triangleB[2])
+            || this.compareVertices(triangleA[0], triangleB[1])
+            && this.compareVertices(triangleA[1], triangleB[0])
+            && this.compareVertices(triangleA[2], triangleB[2])
+            || this.compareVertices(triangleA[0], triangleB[2])
+            && this.compareVertices(triangleA[1], triangleB[1])
+            && this.compareVertices(triangleA[2], triangleB[0])
+            ;
     }
 
     getSuperTriangle(nodes) {

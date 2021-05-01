@@ -5,7 +5,7 @@ const minRadius = 30;
 const maxRadius = 400;
 const width = 800;
 const height = 600;
-const iterations = 1;
+const iterations = 5;
 
 const sampler = new PoissonDiskSampler();
 const nodes = sampler.findPoints(width, height, minRadius, maxRadius, iterations);
@@ -35,5 +35,6 @@ for (let drawNode of triangulator.bowyerWatson(nodes)) {
     c.moveTo(drawNode[0].x, drawNode[0].y);
     c.lineTo(drawNode[1].x, drawNode[1].y);
     c.lineTo(drawNode[2].x, drawNode[2].y);
+    c.lineTo(drawNode[0].x, drawNode[0].y);
     c.stroke();
 }
