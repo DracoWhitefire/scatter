@@ -32,7 +32,7 @@ class PoissonDiskSampler {
             for (let boxX = 0; boxX < width; boxX += cellSize) {
                 let y = boxY + Math.round(Math.random() * (cellSize));
                 let x = boxX + Math.round(Math.random() * (cellSize));
-                let radius = Math.round(Math.random() * (maxRadius - minRadius)) + minRadius;
+                let radius = Math.round(Math.pow(Math.random(), 3) * (maxRadius - minRadius)) + minRadius;
                 let node = {x: x, y: y, radius: radius, boxX: boxX, boxY: boxY, near1: null, near2: null};
                 if (node.x + radius > width || node.y  + radius > height) {
                     continue;

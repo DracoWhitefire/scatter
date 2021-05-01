@@ -8,8 +8,8 @@ class DelaunayTriangulator {
      */
     bowyerWatson(nodes) {
         let triangulation = [];
-        triangulation.push(this.getSuperTriangle(nodes));
-        let count = 0;
+        let superTriangle = this.getSuperTriangle(nodes);
+        triangulation.push(superTriangle);
         for (let node of nodes) {
             let badTriangles = [];
             for (let triangle of triangulation) {
@@ -19,7 +19,7 @@ class DelaunayTriangulator {
                     [triangle[2].x, triangle[2].y],
                 ]);
                 let distance = Math.sqrt(Math.pow(c.x - node.x, 2) + Math.pow(c.y - node.y, 2));
-                if (distance < c.radius) {
+                if (distance < c.r) {
                     badTriangles.push(triangle);
                 }
             }
@@ -49,7 +49,7 @@ class DelaunayTriangulator {
                         }
                     }
                 }
-                polygon.push(edges.filter((edge) => {
+                edges.filter((edge) => {
                     for (let sharedEdge in sharedEdges) {
                         if (((edge[0] === sharedEdge[0]) && (edge[1] === sharedEdge[1]))
                             || ((edge[1] === sharedEdge[0]) && (edge[0] === sharedEdge[1]))) {
@@ -57,7 +57,9 @@ class DelaunayTriangulator {
                         }
                     }
                     return true;
-                }));
+                }).forEach((edge) => {
+                    polygon.push(edge)
+                });
             }
             triangulation = triangulation.filter((triangle) => {
                 return !badTriangles.find((badTri) => {
@@ -68,15 +70,30 @@ class DelaunayTriangulator {
                 });
             });
             for (let edge of polygon) {
-                count++;
                 triangulation.push([
                     edge[0],
                     edge[1],
-                    node
+                    {x: node.x, y: node.y}
                 ])
             }
         }
-        console.log(count);
+
+        let trianglesToRemove = [];
+        for (let triangle of triangulation) {
+            if (superTriangle.find((node) => node === triangle[0])
+                || superTriangle.find((node) => node === triangle[1])
+                || superTriangle.find((node) => node === triangle[2])) {
+                trianglesToRemove.push(triangle);
+            }
+        }
+        triangulation = triangulation.filter(function (triangle) {
+            return !trianglesToRemove.find((triToRemove) => {
+                return (((triToRemove[0] === triangle[0]) && (triToRemove[1] === triangle[1]) && (triToRemove[2] === triangle[2]))
+                    || ((triToRemove[0] === triangle[0]) && (triToRemove[1] === triangle[2]) && (triToRemove[2] === triangle[1]))
+                    || ((triToRemove[0] === triangle[1]) && (triToRemove[1] === triangle[0]) && (triToRemove[2] === triangle[2]))
+                    || ((triToRemove[0] === triangle[2]) && (triToRemove[1] === triangle[1]) && (triToRemove[2] === triangle[0])));
+            });
+        });
 
         return triangulation;
     }

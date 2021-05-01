@@ -1,13 +1,14 @@
-import PoissonDiskSampler from "./PoissonDiskSampler.js";
+import PoissonDiskSampler from "./PoissonDiskSampler";
 import DelaunayTriangulator from "./DelaunayTriangulator";
 
-const minRadius = 20;
-const maxRadius = 120;
-const width = 1024;
-const height = 768;
+const minRadius = 30;
+const maxRadius = 400;
+const width = 800;
+const height = 600;
+const iterations = 1;
 
 const sampler = new PoissonDiskSampler();
-const nodes = sampler.findPoints(width, height, minRadius, maxRadius, 300);
+const nodes = sampler.findPoints(width, height, minRadius, maxRadius, iterations);
 
 const canvas = document.querySelector('canvas#main');
 const c = canvas.getContext('2d');
@@ -26,7 +27,13 @@ for (let node of nodes) {
     c.stroke();
 }
 
+c.strokeStyle = 'lightblue';
 const triangulator = new DelaunayTriangulator();
-for (let drawNode in triangulator.bowyerWatson(nodes)) {
-    console.log(drawNode);
+for (let drawNode of triangulator.bowyerWatson(nodes)) {
+    // console.log(drawNode);
+    c.beginPath();
+    c.moveTo(drawNode[0].x, drawNode[0].y);
+    c.lineTo(drawNode[1].x, drawNode[1].y);
+    c.lineTo(drawNode[2].x, drawNode[2].y);
+    c.stroke();
 }
