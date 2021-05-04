@@ -5,13 +5,14 @@ import CircumscribedCircle from "./CircumscribedCircle";
 import Definitions from "./Definitions";
 import triangle = Definitions.triangle;
 import vertex = Definitions.vertex;
+import Geo from "./Geo";
 
 type polygon = {
     souceVertex: vertex,
     edgeVertices: vertex[],
 };
 
-const minRadius = 30;
+const minRadius = 10;
 const maxRadius = 600;
 const width = 1024;
 const height = 768;
@@ -47,9 +48,9 @@ const voronoiPolys = [];
 debugger;
 for (let node of nodes) {
     let connectedTris = drawTriangles.filter(
-        (triangle: triangle) => DelaunayTriangulator.compareVertices(node, triangle[0])
-            || DelaunayTriangulator.compareVertices(node, triangle[1])
-            || DelaunayTriangulator.compareVertices(node, triangle[2])
+        (triangle: triangle) => Geo.compareVertices(node, triangle[0])
+            || Geo.compareVertices(node, triangle[1])
+            || Geo.compareVertices(node, triangle[2])
     );
     let length = connectedTris.length;
     // console.log(connectedTris.length, 'connected');
@@ -64,8 +65,8 @@ for (let node of nodes) {
         next = connectedTris.find((triangle: triangle) => {
             for (let connectedVertex of triangle) {
                 if (current && current.find((vertex: vertex) =>
-                    !DelaunayTriangulator.compareVertices(node, vertex)
-                    && DelaunayTriangulator.compareVertices(connectedVertex, vertex))) {
+                    !Geo.compareVertices(node, vertex)
+                    && Geo.compareVertices(connectedVertex, vertex))) {
                     return true;
                 }
             }
@@ -76,7 +77,7 @@ for (let node of nodes) {
             break;
         }
         current = next;
-        connectedTris = connectedTris.filter((triangle: triangle) => !DelaunayTriangulator.compareTriangles(triangle, current));
+        connectedTris = connectedTris.filter((triangle: triangle) => !Geo.compareTriangles(triangle, current));
     }
     console.log(sortedTris, 'sorted');
     // exit;
@@ -128,16 +129,16 @@ for (let voronoiPoly of voronoiPolys) {
     // exit;
 }
 
-// for (let drawTriangle of drawTriangles) {
-//     console.log(drawTriangle, CircumscribedCircle.findCenterForTriangle(drawTriangle));
-//     exit;
-//
-//     c.fillStyle = "rgb(" + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ')';
-//     c.beginPath();
-//     c.moveTo(drawTriangle[0].x, drawTriangle[0].y);
-//     c.lineTo(drawTriangle[1].x, drawTriangle[1].y);
-//     c.lineTo(drawTriangle[2].x, drawTriangle[2].y);
-//     c.lineTo(drawTriangle[0].x, drawTriangle[0].y);
-//     c.stroke();
-//     // c.fill();
-// }
+for (let drawTriangle of drawTriangles) {
+    // console.log(drawTriangle, CircumscribedCircle.findCenterForTriangle(drawTriangle));
+    // exit;
+
+    c.fillStyle = "rgb(" + Math.random() * 255 + ',' + Math.random() * 255 + ',' + Math.random() * 255 + ')';
+    c.beginPath();
+    c.moveTo(drawTriangle[0].x, drawTriangle[0].y);
+    c.lineTo(drawTriangle[1].x, drawTriangle[1].y);
+    c.lineTo(drawTriangle[2].x, drawTriangle[2].y);
+    c.lineTo(drawTriangle[0].x, drawTriangle[0].y);
+    c.stroke();
+    // c.fill();
+}

@@ -259,11 +259,6 @@ chrome-trace-event@^1.0.2:
   resolved "https://registry.yarnpkg.com/chrome-trace-event/-/chrome-trace-event-1.0.3.tgz#1015eced4741e15d06664a957dbbf50d041e26ac"
   integrity sha512-p3KULyQg4S7NIHixdwbGX+nFHkoBiA4YQmyWtjb8XngSKV124nJmRysgAeujbUVb15vh+RvFUfCPqU7rXk+hZg==
 
-circumcircle@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/circumcircle/-/circumcircle-1.0.0.tgz#cbae069463dcf931e35411a2f29240454b45f516"
-  integrity sha512-5BEOGMAn/uAJNPnhXqmgNwHUx0cTluxOdEJQkZqNi33Jg/01FH5cp6MchOaBAqsWtV81rQ5S0iViPCSw/BBiiA==
-
 clone-deep@^4.0.1:
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/clone-deep/-/clone-deep-4.0.1.tgz#c19fd9bdbbf85942b4fd979c84dcf7d5f07c2387"

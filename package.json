@@ -4,9 +4,11 @@
   "main": "src/indextjs",
   "license": "MIT",
   "private": true,
-  "dependencies": {
-    "circumcircle": "^1.0.0"
+  "scripts": {
+    "dev": "yarn webpack --mode=development",
+    "watch": "yarn webpack --mode=development --watch"
   },
+  "dependencies": {},
   "devDependencies": {
     "ts-loader": "^9.1.1",
     "typescript": "^4.2.4",

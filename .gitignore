@@ -3,6 +3,7 @@ node_modules/
 .idea/
 
 .yarn-integrity
+yarn-error.log
 
 .env
 .env.test
