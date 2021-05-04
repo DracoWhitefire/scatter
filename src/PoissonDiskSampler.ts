@@ -1,8 +1,14 @@
-type node = { x: number, y: number, radius: number };
+import Definitions from "./Definitions";
+import node = Definitions.node;
 
 class PoissonDiskSampler {
     private readonly nodes: node[] = [];
     private readonly index!: Record<number, Record<number, node[]>>;
+
+    constructor() {
+        this.index = {};
+    }
+
 
     /**
      * @param {int} width
@@ -49,15 +55,15 @@ class PoissonDiskSampler {
                     for (let checkBoxX = boxX - (cellSize * 2);
                          checkBoxX < (boxX + cellSize * 3);
                          checkBoxX += cellSize) {
-                        if (!(checkBoxX in this.index)) {
-                            continue;
-                        }
-                        for (let checkNode of this.index[checkBoxX][checkBoxY] ?? []) {
-                            let distance = Math.sqrt(
-                                Math.pow((checkNode.x - x), 2) + Math.pow((checkNode.y - y), 2)
-                            );
-                            if (distance <= checkNode.radius || distance <= radius) {
-                                occupied = true;
+                        const xIndex = this.index[checkBoxX];
+                        if (!(!(checkBoxX in this.index) || typeof xIndex === 'undefined')) {
+                            for (let checkNode of xIndex[checkBoxY] ?? []) {
+                                let distance = Math.sqrt(
+                                    Math.pow((checkNode.x - x), 2) + Math.pow((checkNode.y - y), 2)
+                                );
+                                if (distance <= checkNode.radius || distance <= radius) {
+                                    occupied = true;
+                                }
                             }
                         }
                     }
@@ -70,9 +76,12 @@ class PoissonDiskSampler {
                 if (!(boxX in this.index)) {
                     this.index[boxX] = {};
                 }
+                // @ts-ignore
                 if (!(boxY in this.index[boxX])) {
+                    // @ts-ignore
                     this.index[boxX][boxY] = [];
                 }
+                // @ts-ignore
                 this.index[boxX][boxY].push(node);
             }
         }

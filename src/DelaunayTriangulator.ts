@@ -1,8 +1,9 @@
-const circumCircle = require('circumcircle');
+import vertex = Definitions.vertex;
 
-type vertex = { x: number, y: number };
-type edge = [vertex, vertex];
-type triangle = [vertex, vertex, vertex];
+const circumCircle = require('circumcircle');
+import Definitions from "./Definitions";
+import edge = Definitions.edge;
+import triangle = Definitions.triangle;
 
 class DelaunayTriangulator {
     /**
@@ -11,9 +12,8 @@ class DelaunayTriangulator {
      * @returns {triangle[]}
      */
     bowyerWatson(nodes: vertex[]): triangle[] {
-        const triangulator = this;
         let triangulation: triangle[] = [];
-        let superTriangle = this.getSuperTriangle(nodes);
+        let superTriangle = DelaunayTriangulator.getSuperTriangle(nodes);
         triangulation.push(superTriangle);
         for (let node of nodes) {
             let badTriangles: triangle[] = [];
@@ -23,7 +23,7 @@ class DelaunayTriangulator {
                     [triangle[1].x, triangle[1].y],
                     [triangle[2].x, triangle[2].y],
                 ]);
-                let distance = Math.sqrt(Math.pow(c.x - node.x, 2) + Math.pow(c.y - node.y, 2));
+                let distance = DelaunayTriangulator.getDistance(c, node);
                 if (distance < c.r) {
                     badTriangles.push(triangle);
                 }
@@ -39,7 +39,7 @@ class DelaunayTriangulator {
                     let compareEdges = this.getEdges(compareTriangle);
                     for (let edge of edges) {
                         for (let compareEdge of compareEdges) {
-                            if (this.compareEdges(edge, compareEdge)) {
+                            if (DelaunayTriangulator.compareEdges(edge, compareEdge)) {
                                 sharedEdges.push(edge);
                             }
                         }
@@ -47,7 +47,7 @@ class DelaunayTriangulator {
                 }
                 edges.filter((edge: edge) => {
                     for (let sharedEdge of sharedEdges) {
-                        if (this.compareEdges(edge, sharedEdge)) {
+                        if (DelaunayTriangulator.compareEdges(edge, sharedEdge)) {
                             return false;
                         }
                     }
@@ -57,7 +57,7 @@ class DelaunayTriangulator {
                 });
             }
             triangulation = triangulation.filter((triangle) => {
-                return !badTriangles.find((badTri) => triangulator.compareTriangles(triangle, badTri));
+                return !badTriangles.find((badTri) => DelaunayTriangulator.compareTriangles(triangle, badTri));
             });
             for (let edge of polygon) {
                 triangulation.push(Object.seal([
@@ -78,10 +78,20 @@ class DelaunayTriangulator {
         }
 
         triangulation = triangulation.filter(function (triangle) {
-            return !trianglesToRemove.find((triToRemove) => triangulator.compareTriangles(triToRemove, triangle));
+            return !trianglesToRemove.find((triToRemove) => DelaunayTriangulator.compareTriangles(triToRemove, triangle));
         });
 
         return triangulation;
+    }
+
+    /**
+     * @param {vertex} nodeA
+     * @param {vertex} nodeB
+     *
+     * @return {number}
+     */
+    static getDistance(nodeA: vertex, nodeB: vertex): number {
+        return Math.sqrt(Math.pow(nodeA.x - nodeB.x, 2) + Math.pow(nodeA.y - nodeB.y, 2));
     }
 
     /**
@@ -102,7 +112,7 @@ class DelaunayTriangulator {
      * @param {int} precision
      * @return boolean
      */
-    compareVertices(vertexA: vertex, vertexB: vertex, precision: number = 6): boolean {
+    static compareVertices(vertexA: vertex, vertexB: vertex, precision: number = 6): boolean {
         return vertexA.x.toPrecision(precision) === vertexB.x.toPrecision(precision)
             && vertexA.y.toPrecision(precision) === vertexB.y.toPrecision(precision);
     }
@@ -112,7 +122,7 @@ class DelaunayTriangulator {
      * @param {edge} edgeB
      * @return boolean
      */
-    compareEdges(edgeA: edge, edgeB: edge): boolean {
+    static compareEdges(edgeA: edge, edgeB: edge): boolean {
         return this.compareVertices(edgeA[0], edgeB[0]) && this.compareVertices(edgeA[1], edgeB[1])
             || this.compareVertices(edgeA[0], edgeB[1]) && this.compareVertices(edgeA[1], edgeB[0]);
     }
@@ -122,7 +132,7 @@ class DelaunayTriangulator {
      * @param {triangle} triangleB
      * @return boolean
      */
-    compareTriangles(triangleA: triangle, triangleB: triangle): boolean {
+    static compareTriangles(triangleA: triangle, triangleB: triangle): boolean {
         return this.compareVertices(triangleA[0], triangleB[0])
             && this.compareVertices(triangleA[1], triangleB[1])
             && this.compareVertices(triangleA[2], triangleB[2])
@@ -142,7 +152,7 @@ class DelaunayTriangulator {
      * @param {vertex[]} nodes
      * @return {triangle} triangle
      */
-    getSuperTriangle(nodes: vertex[]): triangle {
+    static getSuperTriangle(nodes: vertex[]): triangle {
         let minX = 0;
         let maxX = 0;
         let minY = 0;

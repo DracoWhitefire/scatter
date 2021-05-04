@@ -1,4 +1,5 @@
-type node = {x: number, y: number, radius: number};
+import Definitions from "./Definitions";
+import node = Definitions.node;
 class EdgeNodeGenerator {
     /**
      * @param {int} width
