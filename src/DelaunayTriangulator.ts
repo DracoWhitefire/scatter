@@ -11,12 +11,12 @@ class DelaunayTriangulator {
      * @param {vertex[]} nodes
      * @returns {triangle[]}
      */
-    bowyerWatson(nodes: vertex[]): triangle[] {
-        let triangulation: triangle[] = [];
+    bowyerWatson(nodes: vertex[]): triangle<vertex>[] {
+        let triangulation: triangle<vertex>[] = [];
         let superTriangle = DelaunayTriangulator.getSuperTriangle(nodes);
         triangulation.push(superTriangle);
         for (let node of nodes) {
-            let badTriangles: triangle[] = [];
+            let badTriangles: triangle<vertex>[] = [];
             for (let triangle of triangulation) {
                 let c = CircumscribedCircle.findCenterForTriangle(triangle);
                 let distance = Geo.getDistance(c, node);
@@ -24,10 +24,10 @@ class DelaunayTriangulator {
                     badTriangles.push(triangle);
                 }
             }
-            let polygon: edge[] = [];
+            let polygon: edge<vertex>[] = [];
             for (let badTriangle of badTriangles) {
                 let edges = Geo.getEdges(badTriangle);
-                let sharedEdges: edge[] = [];
+                let sharedEdges: edge<vertex>[] = [];
                 for (let compareTriangle of badTriangles) {
                     if (badTriangle === compareTriangle) {
                         continue;
@@ -41,14 +41,14 @@ class DelaunayTriangulator {
                         }
                     }
                 }
-                edges.filter((edge: edge) => {
+                edges.filter((edge: edge<vertex>) => {
                     for (let sharedEdge of sharedEdges) {
                         if (Geo.compareEdges(edge, sharedEdge)) {
                             return false;
                         }
                     }
                     return true;
-                }).forEach((edge: edge) => {
+                }).forEach((edge: edge<vertex>) => {
                     polygon.push(edge)
                 });
             }
@@ -64,7 +64,7 @@ class DelaunayTriangulator {
             }
         }
 
-        let trianglesToRemove: triangle[] = [];
+        let trianglesToRemove: triangle<vertex>[] = [];
         for (let triangle of triangulation) {
             if (superTriangle.find((node: vertex) => node === triangle[0])
                 || superTriangle.find((node: vertex) => node === triangle[1])
@@ -85,7 +85,7 @@ class DelaunayTriangulator {
      * @param {vertex[]} nodes
      * @return {triangle} triangle
      */
-    static getSuperTriangle(nodes: vertex[]): triangle {
+    static getSuperTriangle(nodes: vertex[]): triangle<vertex> {
         let minX = 0;
         let maxX = 0;
         let minY = 0;
@@ -106,7 +106,7 @@ class DelaunayTriangulator {
         }
         const width = maxX - minX;
         const height = maxY - minY;
-        return <triangle>[
+        return <triangle<vertex>>[
             {x: minX - width, y: minY - 10},
             {x: maxX + width, y: minY - 10},
             {x: minX + width / 2, y: maxY + height},

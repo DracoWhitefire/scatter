@@ -18,13 +18,13 @@ class Geo
 
     /**
      * @param {triangle} triangle
-     * @return {[edge, edge, edge]}
+     * @return {[edge<vertex>, edge<vertex>, edge<vertex>]}
      */
-    static getEdges(triangle: triangle): [edge, edge, edge] {
+    static getEdges(triangle: triangle<vertex>): [edge<vertex>, edge<vertex>, edge<vertex>] {
         return Object.seal([
-            <edge> Object.seal([triangle[0], triangle[1]]),
-            <edge> Object.seal([triangle[1], triangle[2]]),
-            <edge> Object.seal([triangle[2], triangle[0]]),
+            <edge<vertex>> Object.seal([triangle[0], triangle[1]]),
+            <edge<vertex>> Object.seal([triangle[1], triangle[2]]),
+            <edge<vertex>> Object.seal([triangle[2], triangle[0]]),
         ]);
     }
 
@@ -40,11 +40,11 @@ class Geo
     }
 
     /**
-     * @param {edge} edgeA
-     * @param {edge} edgeB
+     * @param {edge<vertex>} edgeA
+     * @param {edge<vertex>} edgeB
      * @return boolean
      */
-    static compareEdges(edgeA: edge, edgeB: edge): boolean {
+    static compareEdges(edgeA: edge<vertex>, edgeB: edge<vertex>): boolean {
         return this.compareVertices(edgeA[0], edgeB[0]) && this.compareVertices(edgeA[1], edgeB[1])
             || this.compareVertices(edgeA[0], edgeB[1]) && this.compareVertices(edgeA[1], edgeB[0]);
     }
@@ -54,7 +54,7 @@ class Geo
      * @param {triangle} triangleB
      * @return boolean
      */
-    static compareTriangles(triangleA: triangle, triangleB: triangle): boolean {
+    static compareTriangles(triangleA: triangle<vertex>, triangleB: triangle<vertex>): boolean {
         return this.compareVertices(triangleA[0], triangleB[0])
             && this.compareVertices(triangleA[1], triangleB[1])
             && this.compareVertices(triangleA[2], triangleB[2])

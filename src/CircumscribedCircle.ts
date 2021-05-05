@@ -7,7 +7,7 @@ class CircumscribedCircle {
      * @see https://nl.wikipedia.org/wiki/Omgeschreven_cirkel
      * @param triangle
      */
-    static findCenterForTriangle(triangle: triangle): vertex {
+    static findCenterForTriangle(triangle: triangle<vertex>): vertex {
         const d: number = 2 * (
             (triangle[0].x * (triangle[1].y - triangle[2].y))
             + (triangle[1].x * (triangle[2].y - triangle[0].y))

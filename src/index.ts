@@ -1,16 +1,7 @@
 import PoissonDiskSampler from "./PoissonDiskSampler";
 import DelaunayTriangulator from "./DelaunayTriangulator";
-import EdgeNodeGenerator from "./EdgeNodeGenerator";
-import CircumscribedCircle from "./CircumscribedCircle";
-import Definitions from "./Definitions";
-import triangle = Definitions.triangle;
-import vertex = Definitions.vertex;
-import Geo from "./Geo";
+import Voronoi from "./Voronoi";
 
-type polygon = {
-    souceVertex: vertex,
-    edgeVertices: vertex[],
-};
 
 const minRadius = 10;
 const maxRadius = 600;
@@ -44,90 +35,7 @@ for (let node of nodes) {
 c.strokeStyle = 'lightblue';
 const triangulator = new DelaunayTriangulator();
 const drawTriangles = triangulator.bowyerWatson(nodes);
-const voronoiPolys = [];
-debugger;
-for (let node of nodes) {
-    let connectedTris = drawTriangles.filter(
-        (triangle: triangle) => Geo.compareVertices(node, triangle[0])
-            || Geo.compareVertices(node, triangle[1])
-            || Geo.compareVertices(node, triangle[2])
-    );
-    let length = connectedTris.length;
-    // console.log(connectedTris.length, 'connected');
-    console.log(connectedTris, 'connected');
-    let sortedTris = [];
-    // @ts-ignore
-    let current: triangle = connectedTris.pop();
-    let next: triangle;
-    while (connectedTris.length) {
-        sortedTris.push(current);
-        // @ts-ignore
-        next = connectedTris.find((triangle: triangle) => {
-            for (let connectedVertex of triangle) {
-                if (current && current.find((vertex: vertex) =>
-                    !Geo.compareVertices(node, vertex)
-                    && Geo.compareVertices(connectedVertex, vertex))) {
-                    return true;
-                }
-            }
-            return false;
-        });
-        if (!next) {
-            let newlength = connectedTris.length;
-            break;
-        }
-        current = next;
-        connectedTris = connectedTris.filter((triangle: triangle) => !Geo.compareTriangles(triangle, current));
-    }
-    console.log(sortedTris, 'sorted');
-    // exit;
-    let triNodes: { [key: string]: number } = {};
-    for (let connectedTri of sortedTris) {
-        for (let connectedVertex of connectedTri) {
-            let vertexString = JSON.stringify(connectedVertex);
-            if (!(vertexString in triNodes)) {
-                triNodes[vertexString] = 1;
-            } else {
-                triNodes[vertexString]++;
-            }
 
-        }
-    }
-    console.log(triNodes);
-    let innerNode = true;
-    for (let key in triNodes) {
-        // @ts-ignore
-        if (triNodes[key] < 2) {
-            innerNode = false;
-            break;
-        }
-    }
-    if (innerNode) {
-        let voronoiPoly: polygon = {
-            souceVertex: node,
-            edgeVertices: [],
-        };
-        for (let connectedTri of connectedTris) {
-            voronoiPoly.edgeVertices.push(CircumscribedCircle.findCenterForTriangle(connectedTri));
-        }
-        voronoiPolys.push(voronoiPoly);
-    }
-
-}
-console.log(voronoiPolys);
-
-for (let voronoiPoly of voronoiPolys) {
-    c.beginPath();
-    // @ts-ignore
-    c.moveTo(voronoiPoly.edgeVertices[0].x, voronoiPoly.edgeVertices[0].y);
-    for (let edgeVertex of voronoiPoly.edgeVertices) {
-        c.lineTo(edgeVertex.x, edgeVertex.y);
-    }
-    // @ts-ignore
-    c.lineTo(voronoiPoly.edgeVertices[0].x, voronoiPoly.edgeVertices[0].y);
-    c.stroke();
-    // exit;
-}
 
 for (let drawTriangle of drawTriangles) {
     // console.log(drawTriangle, CircumscribedCircle.findCenterForTriangle(drawTriangle));
@@ -141,4 +49,22 @@ for (let drawTriangle of drawTriangles) {
     c.lineTo(drawTriangle[0].x, drawTriangle[0].y);
     c.stroke();
     // c.fill();
+}
+
+const voronoi = new Voronoi();
+const voronoiPolys = voronoi.getPolygons(nodes, drawTriangles);
+console.log(voronoiPolys);
+
+for (let voronoiPoly of voronoiPolys) {
+    c.beginPath();
+    // @ts-ignore
+    c.moveTo(voronoiPoly.edgeVertices[0].x, voronoiPoly.edgeVertices[0].y);
+    for (let edgeVertex of voronoiPoly.edgeVertices) {
+        c.lineTo(edgeVertex.x, edgeVertex.y);
+    }
+    // @ts-ignore
+    c.lineTo(voronoiPoly.edgeVertices[0].x, voronoiPoly.edgeVertices[0].y);
+    c.stroke();
+    // exit;
+    break;
 }
